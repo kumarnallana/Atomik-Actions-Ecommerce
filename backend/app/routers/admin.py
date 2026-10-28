@@ -13,9 +13,11 @@ from app.schemas import (
 
 router = APIRouter(prefix="/api/admin", tags=["admin"])
 
+
 @router.get("/orders", response_model=List[OrderOut])
 def list_all_orders(db: Session = Depends(get_db)):
     return db.query(Order).order_by(Order.created_at.desc()).all()
+
 
 @router.patch("/orders/{order_id}/status", response_model=OrderOut)
 def advance_order_status(
@@ -50,6 +52,7 @@ def advance_order_status(
     db.refresh(order)
     return order
 
+
 @router.get("/low-stock", response_model=List[ProductOut])
 def get_low_stock_products(
     threshold: int = Query(3, ge=0),
@@ -62,6 +65,7 @@ def get_low_stock_products(
         .order_by(Product.stock.asc())
         .all()
     )
+
 
 @router.post("/products", response_model=ProductOut)
 def create_product(payload: ProductCreate, db: Session = Depends(get_db)):
@@ -77,6 +81,7 @@ def create_product(payload: ProductCreate, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(product)
     return product
+
 
 @router.patch("/products/{product_id}", response_model=ProductOut)
 def update_product_inventory_or_price(
