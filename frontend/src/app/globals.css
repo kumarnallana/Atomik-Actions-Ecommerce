@@ -1,0 +1,9 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  background-color: #fafafa;
+  color: #09090b;
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+}
