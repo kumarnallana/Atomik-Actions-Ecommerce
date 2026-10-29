@@ -1,8 +1,8 @@
 from typing import List
 from fastapi import APIRouter, Depends, HTTPException, Query
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from app.database import get_db
-from app.models import Order, OrderStatus, Product
+from app.models import Order, OrderItem, OrderStatus, Product
 from app.schemas import (
     OrderOut,
     OrderStatusUpdate,
@@ -16,7 +16,15 @@ router = APIRouter(prefix="/api/admin", tags=["admin"])
 
 @router.get("/orders", response_model=List[OrderOut])
 def list_all_orders(db: Session = Depends(get_db)):
-    return db.query(Order).order_by(Order.created_at.desc()).all()
+    return (
+        db.query(Order)
+        .options(
+            joinedload(Order.user),
+            joinedload(Order.items).joinedload(OrderItem.product),
+        )
+        .order_by(Order.created_at.desc())
+        .all()
+    )
 
 
 @router.patch("/orders/{order_id}/status", response_model=OrderOut)

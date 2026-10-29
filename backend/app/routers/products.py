@@ -1,6 +1,6 @@
 from typing import List, Optional
 from fastapi import APIRouter, Depends, HTTPException, Query
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from app.database import get_db
 from app.models import Order, OrderItem, Product, Review, User
 from app.schemas import ProductOut, ReviewCreate, ReviewOut
@@ -16,7 +16,7 @@ def list_products(
     sort_by: Optional[str] = Query(None, pattern="^(price_asc|price_desc|name_asc|stock_desc)$"),
     db: Session = Depends(get_db),
 ):
-    query = db.query(Product)
+    query = db.query(Product).options(joinedload(Product.reviews).joinedload(Review.user))
 
     if category and category.lower() != "all":
         query = query.filter(Product.category == category)
@@ -48,7 +48,12 @@ def list_categories(db: Session = Depends(get_db)):
 
 @router.get("/{product_id}", response_model=ProductOut)
 def get_product(product_id: int, db: Session = Depends(get_db)):
-    product = db.query(Product).filter(Product.id == product_id).first()
+    product = (
+        db.query(Product)
+        .options(joinedload(Product.reviews).joinedload(Review.user))
+        .filter(Product.id == product_id)
+        .first()
+    )
     if not product:
         raise HTTPException(status_code=404, detail="Product not found")
     return product
@@ -63,7 +68,12 @@ def create_product_review(
     Stretch Goal: Verified Buyer Product Reviews.
     Only customers who have actually ordered this product can submit a review.
     """
-    product = db.query(Product).filter(Product.id == product_id).first()
+    product = (
+        db.query(Product)
+        .options(joinedload(Product.reviews).joinedload(Review.user))
+        .filter(Product.id == product_id)
+        .first()
+    )
     if not product:
         raise HTTPException(status_code=404, detail="Product not found.")
 

@@ -1,8 +1,8 @@
 from typing import List
 from fastapi import APIRouter, Depends
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from app.database import get_db
-from app.models import Order
+from app.models import Order, OrderItem
 from app.schemas import CheckoutRequest, OrderOut
 from app.services.checkout_service import process_checkout
 
@@ -27,6 +27,10 @@ def checkout_order(payload: CheckoutRequest, db: Session = Depends(get_db)):
 def get_customer_orders(user_id: int, db: Session = Depends(get_db)):
     return (
         db.query(Order)
+        .options(
+            joinedload(Order.user),
+            joinedload(Order.items).joinedload(OrderItem.product),
+        )
         .filter(Order.user_id == user_id)
         .order_by(Order.created_at.desc())
         .all()

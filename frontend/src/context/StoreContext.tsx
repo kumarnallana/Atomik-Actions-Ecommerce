@@ -39,7 +39,6 @@ const DEFAULT_USER: User = {
   name: "Alex Rivera",
   email: "alex.rivera@krono.io",
   role: "customer",
-  created_at: new Date().toISOString(),
 };
 
 export function StoreProvider({ children }: { children: React.ReactNode }) {
