@@ -6,6 +6,7 @@ import { X, Trash2, Plus, Minus, Tag, ArrowRight, CheckCircle2, Lock } from "luc
 import { useStore } from "@/context/StoreContext";
 import { api } from "@/lib/api";
 import { CouponValidationResponse } from "@/types";
+import { formatRupees } from "@/lib/format";
 
 export default function CartDrawer() {
   const router = useRouter();
@@ -53,7 +54,7 @@ export default function CartDrawer() {
     try {
       const res = await api.validateCoupon(couponInput.trim(), currentUser.id);
       setAppliedCoupon(res);
-      notify(`Coupon ${res.code} applied (-$${res.discount_amount.toFixed(2)})`, "success");
+      notify(`Coupon ${res.code} applied (-${formatRupees(res.discount_amount)})`, "success");
     } catch (err: any) {
       setAppliedCoupon(null);
       setCouponError(err.message || "Invalid coupon");
@@ -74,7 +75,7 @@ export default function CartDrawer() {
       setAppliedCoupon(null);
       setCouponInput("");
       setIsCartOpen(false);
-      notify(`Order #${order.id} confirmed! Total charged: $${order.total.toFixed(2)}`, "success");
+      notify(`Order #${order.id} confirmed! Total charged: ${formatRupees(order.total)}`, "success");
       router.push("/orders");
     } catch (err: any) {
       notify(err.message || "Checkout failed", "error");
@@ -138,14 +139,14 @@ export default function CartDrawer() {
                     </button>
                   </div>
                   <p className="text-xs text-zinc-500 mt-0.5">
-                    ${item.product.price.toFixed(2)} each • {item.product.stock} in stock
+                    {formatRupees(item.product.price)} each • {item.product.stock} in stock
                   </p>
 
                   <div className="mt-3 flex items-center justify-between">
                     <div className="inline-flex items-center border border-zinc-200 rounded-lg bg-white">
                       <button
                         onClick={() => updateCartQuantity(item.id, item.quantity - 1)}
-                        className="p-1.5 text-zinc-600 hover:text-zinc-900"
+                        className="p-1.5 text-zinc-600 hover:text-zinc-900 cursor-pointer"
                       >
                         <Minus className="w-3.5 h-3.5" />
                       </button>
@@ -154,13 +155,13 @@ export default function CartDrawer() {
                       </span>
                       <button
                         onClick={() => updateCartQuantity(item.id, item.quantity + 1)}
-                        className="p-1.5 text-zinc-600 hover:text-zinc-900"
+                        className="p-1.5 text-zinc-600 hover:text-zinc-900 cursor-pointer"
                       >
                         <Plus className="w-3.5 h-3.5" />
                       </button>
                     </div>
                     <span className="font-mono font-bold text-sm text-zinc-900">
-                      ${(item.product.price * item.quantity).toFixed(2)}
+                      {formatRupees(item.product.price * item.quantity)}
                     </span>
                   </div>
                 </div>
@@ -229,17 +230,17 @@ export default function CartDrawer() {
             <div className="space-y-1.5 pt-2 border-t border-zinc-200 text-sm">
               <div className="flex justify-between text-zinc-600">
                 <span>Subtotal</span>
-                <span className="font-mono">${rawSubtotal.toFixed(2)}</span>
+                <span className="font-mono">{formatRupees(rawSubtotal)}</span>
               </div>
               {appliedCoupon && (
                 <div className="flex justify-between text-emerald-600 font-medium">
                   <span>Discount ({appliedCoupon.code})</span>
-                  <span className="font-mono">-${discountAmount.toFixed(2)}</span>
+                  <span className="font-mono">-{formatRupees(discountAmount)}</span>
                 </div>
               )}
               <div className="flex justify-between text-base font-bold text-zinc-900 pt-1">
                 <span>Server Authoritative Total</span>
-                <span className="font-mono">${finalTotal.toFixed(2)}</span>
+                <span className="font-mono">{formatRupees(finalTotal)}</span>
               </div>
             </div>
 

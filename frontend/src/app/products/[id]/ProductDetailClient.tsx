@@ -15,6 +15,7 @@ import {
 import { Product } from "@/types";
 import { api } from "@/lib/api";
 import { useStore } from "@/context/StoreContext";
+import { formatRupees } from "@/lib/format";
 
 export default function ProductDetailClient({ productId }: { productId: number }) {
   const { currentUser, addToCart, notify } = useStore();
@@ -156,7 +157,7 @@ export default function ProductDetailClient({ productId }: { productId: number }
                 Authoritative Price
               </span>
               <span className="text-3xl font-black font-mono text-zinc-900">
-                ${product.price.toFixed(2)}
+                {formatRupees(product.price)}
               </span>
             </div>
             <div className="text-right">

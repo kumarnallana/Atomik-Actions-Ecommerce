@@ -7,6 +7,7 @@ import { Lock, ArrowRight, Tag, CheckCircle2, ShoppingBag, MapPin, ChevronLeft }
 import { useStore } from "@/context/StoreContext";
 import { api } from "@/lib/api";
 import { CouponValidationResponse } from "@/types";
+import { formatRupees } from "@/lib/format";
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -48,7 +49,7 @@ export default function CheckoutPage() {
     try {
       const res = await api.validateCoupon(couponInput.trim(), currentUser.id);
       setAppliedCoupon(res);
-      notify(`Coupon ${res.code} applied (-$${res.discount_amount.toFixed(2)})`, "success");
+      notify(`Coupon ${res.code} applied (-${formatRupees(res.discount_amount)})`, "success");
     } catch (err: any) {
       setAppliedCoupon(null);
       setCouponError(err.message || "Invalid coupon code");
@@ -67,7 +68,7 @@ export default function CheckoutPage() {
       await refreshCart();
       triggerCatalogRefresh();
       setAppliedCoupon(null);
-      notify(`Order #${order.id} confirmed! Final charge: $${order.total.toFixed(2)}`, "success");
+      notify(`Order #${order.id} confirmed! Final charge: ${formatRupees(order.total)}`, "success");
       router.push("/orders");
     } catch (err: any) {
       notify(err.message || "Checkout failed", "error");
@@ -136,12 +137,12 @@ export default function CheckoutPage() {
                       <div>
                         <h4 className="text-sm font-semibold text-zinc-900">{item.product.name}</h4>
                         <p className="text-xs text-zinc-500 font-mono">
-                          Qty: {item.quantity} × ${item.product.price.toFixed(2)}
+                          Qty: {item.quantity} × {formatRupees(item.product.price)}
                         </p>
                       </div>
                     </div>
                     <span className="font-mono font-bold text-sm text-zinc-900">
-                      ${(item.quantity * item.product.price).toFixed(2)}
+                      {formatRupees(item.quantity * item.product.price)}
                     </span>
                   </div>
                 ))}
@@ -214,12 +215,12 @@ export default function CheckoutPage() {
               <div className="space-y-2 pt-4 border-t border-zinc-100 text-xs">
                 <div className="flex justify-between text-zinc-600">
                   <span>Authoritative Subtotal</span>
-                  <span className="font-mono">${rawSubtotal.toFixed(2)}</span>
+                  <span className="font-mono">{formatRupees(rawSubtotal)}</span>
                 </div>
                 {appliedCoupon && (
                   <div className="flex justify-between text-emerald-600 font-medium">
                     <span>Verified Discount</span>
-                    <span className="font-mono">-${discountAmount.toFixed(2)}</span>
+                    <span className="font-mono">-{formatRupees(discountAmount)}</span>
                   </div>
                 )}
                 <div className="flex justify-between text-zinc-600">
@@ -228,7 +229,7 @@ export default function CheckoutPage() {
                 </div>
                 <div className="flex justify-between text-base font-bold text-zinc-900 pt-2 border-t border-zinc-200">
                   <span>Final Total</span>
-                  <span className="font-mono">${finalTotal.toFixed(2)}</span>
+                  <span className="font-mono">{formatRupees(finalTotal)}</span>
                 </div>
               </div>
 

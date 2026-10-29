@@ -17,8 +17,8 @@ export default function Navbar() {
       <div className="bg-zinc-950 text-zinc-300 text-xs py-2 px-4 text-center font-medium tracking-wide flex items-center justify-center gap-2">
         <Sparkles className="w-3.5 h-3.5 text-amber-400 shrink-0" />
         <span>
-          STUDIO LAUNCH PROMOS: Use <strong className="text-white font-mono">KRONO10</strong> (10% off $50+) or{" "}
-          <strong className="text-white font-mono">STUDIO40</strong> ($40 off $200+)
+          STUDIO LAUNCH PROMOS: Use <strong className="text-white font-mono">KRONO10</strong> (10% off ₹50+) or{" "}
+          <strong className="text-white font-mono">STUDIO40</strong> (₹40 off ₹200+)
         </span>
       </div>
 

@@ -5,6 +5,7 @@ import { Package, CheckCircle2, Truck, Clock, MapPin } from "lucide-react";
 import { Order, OrderStatus } from "@/types";
 import { api } from "@/lib/api";
 import { useStore } from "@/context/StoreContext";
+import { formatRupees } from "@/lib/format";
 
 const STEPS: OrderStatus[] = ["Placed", "Shipped", "Delivered"];
 
@@ -89,11 +90,11 @@ export default function CustomerOrdersPage() {
                       Total Charged
                     </span>
                     <span className="text-lg font-black font-mono text-zinc-900">
-                      ${order.total.toFixed(2)}
+                      {formatRupees(order.total)}
                     </span>
                     {order.coupon_code && (
                       <span className="block text-[11px] text-emerald-600 font-mono">
-                        {order.coupon_code} (-${order.discount.toFixed(2)})
+                        {order.coupon_code} (-{formatRupees(order.discount)})
                       </span>
                     )}
                   </div>
@@ -141,12 +142,12 @@ export default function CustomerOrdersPage() {
                             {item.product?.name || `Product #${item.product_id}`}
                           </h4>
                           <p className="text-xs text-zinc-500 font-mono">
-                            Qty: {item.quantity} × ${item.unit_price.toFixed(2)}
+                            Qty: {item.quantity} × {formatRupees(item.unit_price)}
                           </p>
                         </div>
                       </div>
                       <span className="font-mono font-bold text-sm text-zinc-900">
-                        ${(item.quantity * item.unit_price).toFixed(2)}
+                        {formatRupees(item.quantity * item.unit_price)}
                       </span>
                     </div>
                   ))}

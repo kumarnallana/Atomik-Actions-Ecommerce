@@ -7,6 +7,7 @@ import { Search, SlidersHorizontal, Star, Eye, ShoppingBag, RotateCcw, ArrowUpRi
 import { Product } from "@/types";
 import { api } from "@/lib/api";
 import { useStore } from "@/context/StoreContext";
+import { formatRupees } from "@/lib/format";
 
 // Next.js Dynamic Component Lazy-Loading
 const ProductModal = dynamic(() => import("@/components/ProductModal"), {
@@ -25,6 +26,20 @@ export default function StorefrontCatalogPage() {
   const [loading, setLoading] = useState(true);
   const [activeProduct, setActiveProduct] = useState<Product | null>(null);
 
+  // Debounced search and price states to ensure fast, jitter-free filtering
+  const [debouncedSearch, setDebouncedSearch] = useState(search);
+  const [debouncedMin, setDebouncedMin] = useState(minPrice);
+  const [debouncedMax, setDebouncedMax] = useState(maxPrice);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(search);
+      setDebouncedMin(minPrice);
+      setDebouncedMax(maxPrice);
+    }, 250);
+    return () => clearTimeout(timer);
+  }, [search, minPrice, maxPrice]);
+
   useEffect(() => {
     api.getCategories().then(setCategories).catch(console.error);
   }, [catalogVersion]);
@@ -34,9 +49,9 @@ export default function StorefrontCatalogPage() {
     api
       .getProducts({
         category: selectedCategory,
-        search: search || undefined,
-        min_price: minPrice || undefined,
-        max_price: maxPrice || undefined,
+        search: debouncedSearch || undefined,
+        min_price: debouncedMin || undefined,
+        max_price: debouncedMax || undefined,
         sort_by: sortBy || undefined,
       })
       .then((items) => {
@@ -48,7 +63,7 @@ export default function StorefrontCatalogPage() {
         setProducts([]);
       })
       .finally(() => setLoading(false));
-  }, [selectedCategory, search, minPrice, maxPrice, sortBy, catalogVersion]);
+  }, [selectedCategory, debouncedSearch, debouncedMin, debouncedMax, sortBy, catalogVersion, registerProducts]);
 
   const resetFilters = () => {
     setSelectedCategory("All");
@@ -56,6 +71,11 @@ export default function StorefrontCatalogPage() {
     setMinPrice("");
     setMaxPrice("");
     setSortBy("");
+  };
+
+  const applyQuickPrice = (min: string, max: string) => {
+    setMinPrice(min);
+    setMaxPrice(max);
   };
 
   return (
@@ -113,7 +133,7 @@ export default function StorefrontCatalogPage() {
               <input
                 type="number"
                 min="0"
-                placeholder="Min $"
+                placeholder="Min ₹"
                 value={minPrice}
                 onChange={(e) => setMinPrice(e.target.value)}
                 className="w-16 text-xs bg-transparent focus:outline-none font-mono"
@@ -122,7 +142,7 @@ export default function StorefrontCatalogPage() {
               <input
                 type="number"
                 min="0"
-                placeholder="Max $"
+                placeholder="Max ₹"
                 value={maxPrice}
                 onChange={(e) => setMaxPrice(e.target.value)}
                 className="w-16 text-xs bg-transparent focus:outline-none font-mono"
@@ -152,6 +172,34 @@ export default function StorefrontCatalogPage() {
               </button>
             )}
           </div>
+        </div>
+
+        {/* Quick Price Shortcuts */}
+        <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-zinc-100 text-xs">
+          <span className="text-zinc-400 font-mono text-[11px] uppercase mr-1">Price Range:</span>
+          {[
+            { label: "All Prices", min: "", max: "" },
+            { label: "Under ₹50", min: "", max: "50" },
+            { label: "₹50 - ₹150", min: "50", max: "150" },
+            { label: "₹150 - ₹250", min: "150", max: "250" },
+            { label: "Above ₹250", min: "250", max: "" },
+          ].map((preset) => {
+            const active = minPrice === preset.min && maxPrice === preset.max;
+            return (
+              <button
+                key={preset.label}
+                type="button"
+                onClick={() => applyQuickPrice(preset.min, preset.max)}
+                className={`px-2.5 py-1 rounded-lg font-mono text-[11px] transition cursor-pointer ${
+                  active
+                    ? "bg-zinc-900 text-white font-bold"
+                    : "bg-zinc-100 text-zinc-600 hover:bg-zinc-200"
+                }`}
+              >
+                {preset.label}
+              </button>
+            );
+          })}
         </div>
       </section>
 
@@ -258,7 +306,7 @@ export default function StorefrontCatalogPage() {
                 <div className="px-5 pb-5 pt-3 border-t border-zinc-100 flex items-center justify-between">
                   <div>
                     <span className="text-lg font-black font-mono text-zinc-900">
-                      ${product.price.toFixed(2)}
+                      {formatRupees(product.price)}
                     </span>
                     <span className="block text-[11px] text-zinc-500 font-mono">
                       {product.stock} in stock

@@ -1,17 +1,18 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useStore } from "@/context/StoreContext";
+import { api } from "@/lib/api";
+import { formatRupees } from "@/lib/format";
+import { Order, OrderStatus, Product } from "@/types";
 import {
   AlertTriangle,
-  PlusCircle,
   Boxes,
-  Truck,
   CheckCircle,
+  PlusCircle,
   RefreshCw,
+  Truck,
 } from "lucide-react";
-import { Order, OrderStatus, Product } from "@/types";
-import { api } from "@/lib/api";
-import { useStore } from "@/context/StoreContext";
+import { useEffect, useState } from "react";
 
 export default function AdminStudioPage() {
   const { notify, triggerCatalogRefresh } = useStore();
@@ -60,7 +61,10 @@ export default function AdminStudioPage() {
     loadAdminData();
   }, []);
 
-  const handleStatusTransition = async (orderId: number, nextStatus: OrderStatus) => {
+  const handleStatusTransition = async (
+    orderId: number,
+    nextStatus: OrderStatus,
+  ) => {
     try {
       await api.updateOrderStatus(orderId, nextStatus);
       notify(`Order #${orderId} moved to ${nextStatus}`, "success");
@@ -137,7 +141,8 @@ export default function AdminStudioPage() {
             <AlertTriangle className="w-6 h-6 text-amber-600 shrink-0 mt-0.5" />
             <div>
               <h3 className="text-sm font-bold text-amber-950">
-                Low-Stock Inventory Alert ({lowStock.length} SKU{lowStock.length > 1 ? "s" : ""} ≤ 3 units)
+                Low-Stock Inventory Alert ({lowStock.length} SKU
+                {lowStock.length > 1 ? "s" : ""} ≤ 3 units)
               </h3>
               <p className="text-xs text-amber-800 mt-0.5">
                 {lowStock.map((p) => `${p.name} (${p.stock} left)`).join(" • ")}
@@ -163,7 +168,9 @@ export default function AdminStudioPage() {
         </div>
 
         {loading ? (
-          <div className="p-10 text-center text-sm text-zinc-400">Loading orders...</div>
+          <div className="p-10 text-center text-sm text-zinc-400">
+            Loading orders...
+          </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse text-sm">
@@ -192,10 +199,15 @@ export default function AdminStudioPage() {
                       </div>
                     </td>
                     <td className="py-3.5 px-4 text-xs text-zinc-600">
-                      {o.items.map((i) => `${i.product?.name || `SKU #${i.product_id}`} (×${i.quantity})`).join(", ")}
+                      {o.items
+                        .map(
+                          (i) =>
+                            `${i.product?.name || `SKU #${i.product_id}`} (×${i.quantity})`,
+                        )
+                        .join(", ")}
                     </td>
                     <td className="py-3.5 px-4 font-mono font-bold text-zinc-900">
-                      ${o.total.toFixed(2)}
+                      {formatRupees(o.total)}
                     </td>
                     <td className="py-3.5 px-4">
                       <span
@@ -203,8 +215,8 @@ export default function AdminStudioPage() {
                           o.status === "Delivered"
                             ? "bg-emerald-100 text-emerald-800"
                             : o.status === "Shipped"
-                            ? "bg-indigo-100 text-indigo-800"
-                            : "bg-amber-100 text-amber-800"
+                              ? "bg-indigo-100 text-indigo-800"
+                              : "bg-amber-100 text-amber-800"
                         }`}
                       >
                         {o.status}
@@ -213,7 +225,9 @@ export default function AdminStudioPage() {
                     <td className="py-3.5 px-4 text-right">
                       {o.status === "Placed" && (
                         <button
-                          onClick={() => handleStatusTransition(o.id, "Shipped")}
+                          onClick={() =>
+                            handleStatusTransition(o.id, "Shipped")
+                          }
                           className="px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold transition"
                         >
                           Mark Shipped →
@@ -221,7 +235,9 @@ export default function AdminStudioPage() {
                       )}
                       {o.status === "Shipped" && (
                         <button
-                          onClick={() => handleStatusTransition(o.id, "Delivered")}
+                          onClick={() =>
+                            handleStatusTransition(o.id, "Delivered")
+                          }
                           className="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold transition"
                         >
                           Mark Delivered ✓
@@ -265,9 +281,11 @@ export default function AdminStudioPage() {
                     className="w-12 h-12 rounded-lg object-cover bg-zinc-100 shrink-0"
                   />
                   <div>
-                    <h4 className="text-sm font-bold text-zinc-900">{prod.name}</h4>
+                    <h4 className="text-sm font-bold text-zinc-900">
+                      {prod.name}
+                    </h4>
                     <p className="text-xs text-zinc-500 font-mono">
-                      ${prod.price.toFixed(2)} • {prod.category}
+                      {formatRupees(prod.price)} • {prod.category}
                     </p>
                   </div>
                 </div>
@@ -306,30 +324,40 @@ export default function AdminStudioPage() {
 
           <form onSubmit={handleCreateProduct} className="space-y-3 text-xs">
             <div>
-              <label className="font-semibold text-zinc-700 block mb-1">Product Name</label>
+              <label className="font-semibold text-zinc-700 block mb-1">
+                Product Name
+              </label>
               <input
                 type="text"
                 required
                 placeholder="e.g. Krono Rotary Macro Pad"
                 value={newProd.name}
-                onChange={(e) => setNewProd({ ...newProd, name: e.target.value })}
+                onChange={(e) =>
+                  setNewProd({ ...newProd, name: e.target.value })
+                }
                 className="w-full px-3 py-2 rounded-lg border border-zinc-300"
               />
             </div>
 
             <div className="grid grid-cols-2 gap-2">
               <div>
-                <label className="font-semibold text-zinc-700 block mb-1">Category</label>
+                <label className="font-semibold text-zinc-700 block mb-1">
+                  Category
+                </label>
                 <input
                   type="text"
                   required
                   value={newProd.category}
-                  onChange={(e) => setNewProd({ ...newProd, category: e.target.value })}
+                  onChange={(e) =>
+                    setNewProd({ ...newProd, category: e.target.value })
+                  }
                   className="w-full px-3 py-2 rounded-lg border border-zinc-300"
                 />
               </div>
               <div>
-                <label className="font-semibold text-zinc-700 block mb-1">Price ($)</label>
+                <label className="font-semibold text-zinc-700 block mb-1">
+                  Price (₹)
+                </label>
                 <input
                   type="number"
                   step="0.01"
@@ -337,7 +365,9 @@ export default function AdminStudioPage() {
                   required
                   placeholder="89.00"
                   value={newProd.price}
-                  onChange={(e) => setNewProd({ ...newProd, price: e.target.value })}
+                  onChange={(e) =>
+                    setNewProd({ ...newProd, price: e.target.value })
+                  }
                   className="w-full px-3 py-2 rounded-lg border border-zinc-300 font-mono"
                 />
               </div>
@@ -345,37 +375,49 @@ export default function AdminStudioPage() {
 
             <div className="grid grid-cols-2 gap-2">
               <div>
-                <label className="font-semibold text-zinc-700 block mb-1">Initial Stock</label>
+                <label className="font-semibold text-zinc-700 block mb-1">
+                  Initial Stock
+                </label>
                 <input
                   type="number"
                   min="0"
                   required
                   placeholder="10"
                   value={newProd.stock}
-                  onChange={(e) => setNewProd({ ...newProd, stock: e.target.value })}
+                  onChange={(e) =>
+                    setNewProd({ ...newProd, stock: e.target.value })
+                  }
                   className="w-full px-3 py-2 rounded-lg border border-zinc-300 font-mono"
                 />
               </div>
               <div>
-                <label className="font-semibold text-zinc-700 block mb-1">Image URL</label>
+                <label className="font-semibold text-zinc-700 block mb-1">
+                  Image URL
+                </label>
                 <input
                   type="url"
                   required
                   value={newProd.image_url}
-                  onChange={(e) => setNewProd({ ...newProd, image_url: e.target.value })}
+                  onChange={(e) =>
+                    setNewProd({ ...newProd, image_url: e.target.value })
+                  }
                   className="w-full px-3 py-2 rounded-lg border border-zinc-300"
                 />
               </div>
             </div>
 
             <div>
-              <label className="font-semibold text-zinc-700 block mb-1">Description</label>
+              <label className="font-semibold text-zinc-700 block mb-1">
+                Description
+              </label>
               <textarea
                 rows={3}
                 required
                 placeholder="Technical specifications and materials..."
                 value={newProd.description}
-                onChange={(e) => setNewProd({ ...newProd, description: e.target.value })}
+                onChange={(e) =>
+                  setNewProd({ ...newProd, description: e.target.value })
+                }
                 className="w-full px-3 py-2 rounded-lg border border-zinc-300"
               />
             </div>

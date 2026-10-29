@@ -5,6 +5,7 @@ import { X, Star, ShieldCheck, MessageSquarePlus } from "lucide-react";
 import { Product } from "@/types";
 import { useStore } from "@/context/StoreContext";
 import { api } from "@/lib/api";
+import { formatRupees } from "@/lib/format";
 
 interface ProductModalProps {
   product: Product | null;
@@ -72,7 +73,7 @@ export default function ProductModal({ product, onClose, onReviewAdded }: Produc
             <div className="mt-6 pt-4 border-t border-zinc-100 flex items-center justify-between">
               <div>
                 <span className="text-2xl font-black font-mono text-zinc-900">
-                  ${product.price.toFixed(2)}
+                  {formatRupees(product.price)}
                 </span>
                 <span
                   className={`block text-xs font-semibold mt-0.5 ${
