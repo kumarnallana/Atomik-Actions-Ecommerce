@@ -89,8 +89,8 @@ export default function ProductModal({ product, onClose, onReviewAdded }: Produc
 
               <button
                 disabled={product.stock <= 0}
-                onClick={() => addToCart(product.id, 1)}
-                className="px-5 py-2.5 rounded-xl bg-zinc-900 hover:bg-indigo-600 disabled:bg-zinc-200 disabled:text-zinc-400 text-white text-sm font-semibold transition"
+                onClick={() => addToCart(product, 1)}
+                className="px-5 py-2.5 rounded-xl bg-zinc-900 hover:bg-indigo-600 disabled:bg-zinc-200 disabled:text-zinc-400 text-white text-sm font-semibold transition cursor-pointer"
               >
                 {product.stock > 0 ? "Add to Bag" : "Sold Out"}
               </button>

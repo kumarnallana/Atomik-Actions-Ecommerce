@@ -180,7 +180,7 @@ export default function ProductDetailClient({ productId }: { productId: number }
           <div className="space-y-3">
             <button
               disabled={isOut}
-              onClick={() => addToCart(product.id, 1)}
+              onClick={() => addToCart(product, 1)}
               className="w-full py-3.5 px-6 rounded-2xl bg-zinc-900 hover:bg-indigo-600 disabled:bg-zinc-200 disabled:text-zinc-400 text-white font-semibold text-sm flex items-center justify-center gap-2.5 transition shadow-lg cursor-pointer disabled:cursor-not-allowed"
             >
               <ShoppingBag className="w-4 h-4" />

@@ -14,7 +14,7 @@ const ProductModal = dynamic(() => import("@/components/ProductModal"), {
 });
 
 export default function StorefrontCatalogPage() {
-  const { addToCart, catalogVersion } = useStore();
+  const { addToCart, registerProducts, catalogVersion } = useStore();
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<string[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string>("All");
@@ -39,7 +39,10 @@ export default function StorefrontCatalogPage() {
         max_price: maxPrice || undefined,
         sort_by: sortBy || undefined,
       })
-      .then(setProducts)
+      .then((items) => {
+        setProducts(items);
+        registerProducts(items);
+      })
       .catch((err) => {
         console.error("Failed to load products:", err);
         setProducts([]);
@@ -264,7 +267,7 @@ export default function StorefrontCatalogPage() {
 
                   <button
                     disabled={isOut}
-                    onClick={() => addToCart(product.id, 1)}
+                    onClick={() => addToCart(product, 1)}
                     className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-zinc-900 hover:bg-indigo-600 disabled:bg-zinc-100 disabled:text-zinc-400 text-white text-xs font-semibold transition cursor-pointer disabled:cursor-not-allowed"
                   >
                     <ShoppingBag className="w-3.5 h-3.5" />
