@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta, timezone
-from app.database import Base, SessionLocal, engine
+from app.database import Base, SessionLocal, SqliteSessionLocal, engine, sqlite_engine
 from app.models import (
     Coupon,
     DiscountType,
@@ -11,14 +11,9 @@ from app.models import (
     User,
 )
 
-def seed_database(force_reset: bool = False):
-    Base.metadata.create_all(bind=engine)
-    db = SessionLocal()
+def _seed_session(db, force_reset: bool = False):
     try:
-        if force_reset:
-            Base.metadata.drop_all(bind=engine)
-            Base.metadata.create_all(bind=engine)
-        elif db.query(Product).count() > 0:
+        if not force_reset and db.query(Product).count() > 0:
             return
 
         # 1. Seed Demo Users
@@ -170,9 +165,30 @@ def seed_database(force_reset: bool = False):
         )
 
         db.commit()
-        print("Krono database seeded successfully.")
+    except Exception as exc:
+        db.rollback()
+        raise exc
     finally:
         db.close()
 
+def seed_database(force_reset: bool = False):
+    # 1. Seed primary database
+    try:
+        if force_reset:
+            Base.metadata.drop_all(bind=engine)
+        Base.metadata.create_all(bind=engine)
+        _seed_session(SessionLocal(), force_reset=force_reset)
+        print("Primary database seeded successfully.")
+    except Exception as exc:
+        print(f"Could not seed primary database ({exc}).")
+
+    # 2. Seed fallback SQLite database
+    try:
+        Base.metadata.create_all(bind=sqlite_engine)
+        _seed_session(SqliteSessionLocal(), force_reset=force_reset)
+        print("Fallback SQLite database seeded and verified.")
+    except Exception as exc:
+        print(f"Could not seed SQLite fallback database ({exc}).")
+
 if __name__ == "__main__":
-    seed_database(force_reset=True)
+    seed_database(force_reset=False)
