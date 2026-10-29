@@ -1,11 +1,11 @@
 # AGENTS.md — Antigravity Engineering Guidelines & Operational Directives
 
 ## 1. MANDATORY AGENT BEHAVIORAL DIRECTIVES
-- **ALWAYS PROVIDE A GIT COMMIT AT THE END OF EVERY CONVERSATION/RESPONSE:**
-  Whenever any file is created, updated, or fixed, or when a task milestone is reached, the agent MUST conclude the response with an explicit, copy-pasteable Git commit section containing:
-  1. `git add` for the modified/created files.
-  2. `git commit -m "..."` using conventional commit prefixes (`feat:`, `fix:`, `test:`, `docs:`, `chore:`).
-  3. `git push origin main` command.
+- **ALWAYS PROVIDE THE EXACT 3-STEP GIT WORKFLOW AT THE END OF EVERY RESPONSE:**
+  Whenever any file is created, updated, or fixed, or when a task milestone is reached, the agent MUST conclude the response with the exact 3-step sequence:
+  1. `git add .`
+  2. `git commit -m "<type>(<scope>): <summary>"`
+  3. `git push origin main`
 - **Documentation & Invariant Integrity:** Maintain all architectural rules, row-level concurrency locks, and server-side pricing guarantees.
 
 ---
@@ -59,9 +59,9 @@ npm run dev
 ---
 
 ## 4. STANDARD GIT COMMIT WORKFLOW TEMPLATE
-Always format the end of every reply with:
+Always format the end of every reply strictly following this exact 3-step order:
 ```bash
-git add <files>
+git add .
 git commit -m "<type>(<scope>): <summary>"
 git push origin main
 ```
