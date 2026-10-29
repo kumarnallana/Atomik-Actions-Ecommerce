@@ -14,12 +14,18 @@ export default function CustomerOrdersPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!currentUser) return;
+    if (!currentUser) {
+      setLoading(false);
+      return;
+    }
     setLoading(true);
     api
       .getUserOrders(currentUser.id)
       .then(setOrders)
-      .catch(console.error)
+      .catch((err) => {
+        console.error("Failed to load user orders:", err);
+        setOrders([]);
+      })
       .finally(() => setLoading(false));
   }, [currentUser]);
 

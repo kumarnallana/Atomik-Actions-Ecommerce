@@ -1,11 +1,17 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Search, SlidersHorizontal, Star, Eye, ShoppingBag, RotateCcw } from "lucide-react";
+import Link from "next/link";
+import dynamic from "next/dynamic";
+import { Search, SlidersHorizontal, Star, Eye, ShoppingBag, RotateCcw, ArrowUpRight } from "lucide-react";
 import { Product } from "@/types";
 import { api } from "@/lib/api";
 import { useStore } from "@/context/StoreContext";
-import ProductModal from "@/components/ProductModal";
+
+// Next.js Dynamic Component Lazy-Loading
+const ProductModal = dynamic(() => import("@/components/ProductModal"), {
+  ssr: false,
+});
 
 export default function StorefrontCatalogPage() {
   const { addToCart, catalogVersion } = useStore();
@@ -34,7 +40,10 @@ export default function StorefrontCatalogPage() {
         sort_by: sortBy || undefined,
       })
       .then(setProducts)
-      .catch(console.error)
+      .catch((err) => {
+        console.error("Failed to load products:", err);
+        setProducts([]);
+      })
       .finally(() => setLoading(false));
   }, [selectedCategory, search, minPrice, maxPrice, sortBy, catalogVersion]);
 
@@ -72,7 +81,7 @@ export default function StorefrontCatalogPage() {
               <button
                 key={cat}
                 onClick={() => setSelectedCategory(cat)}
-                className={`px-3.5 py-2 rounded-xl text-xs font-semibold transition shrink-0 ${
+                className={`px-3.5 py-2 rounded-xl text-xs font-semibold transition shrink-0 cursor-pointer ${
                   selectedCategory === cat
                     ? "bg-zinc-900 text-white shadow-xs"
                     : "bg-zinc-100 text-zinc-600 hover:bg-zinc-200"
@@ -121,7 +130,7 @@ export default function StorefrontCatalogPage() {
               aria-label="Sort products"
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
-              className="px-3 py-2 rounded-xl border border-zinc-300 text-xs font-semibold bg-white text-zinc-800 focus:outline-none focus:ring-2 focus:ring-zinc-900"
+              className="px-3 py-2 rounded-xl border border-zinc-300 text-xs font-semibold bg-white text-zinc-800 focus:outline-none focus:ring-2 focus:ring-zinc-900 cursor-pointer"
             >
               <option value="">Sort: Featured</option>
               <option value="price_asc">Price: Low → High</option>
@@ -133,7 +142,7 @@ export default function StorefrontCatalogPage() {
             {(selectedCategory !== "All" || search || minPrice || maxPrice || sortBy) && (
               <button
                 onClick={resetFilters}
-                className="inline-flex items-center gap-1 px-3 py-2 rounded-xl text-xs font-semibold text-rose-600 hover:bg-rose-50 transition"
+                className="inline-flex items-center gap-1 px-3 py-2 rounded-xl text-xs font-semibold text-rose-600 hover:bg-rose-50 transition cursor-pointer"
               >
                 <RotateCcw className="w-3.5 h-3.5" />
                 Reset
@@ -158,7 +167,7 @@ export default function StorefrontCatalogPage() {
           <p className="text-zinc-600 font-semibold">No hardware matches your active filters.</p>
           <button
             onClick={resetFilters}
-            className="mt-3 px-4 py-2 rounded-xl bg-zinc-900 text-white text-xs font-semibold"
+            className="mt-3 px-4 py-2 rounded-xl bg-zinc-900 text-white text-xs font-semibold cursor-pointer"
           >
             Clear All Filters
           </button>
@@ -176,11 +185,13 @@ export default function StorefrontCatalogPage() {
               >
                 <div>
                   <div className="relative h-56 bg-zinc-100 overflow-hidden">
-                    <img
-                      src={product.image_url}
-                      alt={product.name}
-                      className="w-full h-full object-cover group-hover:scale-105 transition duration-500"
-                    />
+                    <Link href={`/products/${product.id}`} className="block w-full h-full">
+                      <img
+                        src={product.image_url}
+                        alt={product.name}
+                        className="w-full h-full object-cover group-hover:scale-105 transition duration-500"
+                      />
+                    </Link>
                     <div className="absolute top-3 left-3 flex flex-col gap-1.5">
                       <span className="px-2.5 py-1 rounded-md text-[11px] font-mono font-semibold uppercase bg-zinc-900/85 text-white backdrop-blur-xs">
                         {product.category}
@@ -197,13 +208,22 @@ export default function StorefrontCatalogPage() {
                       )}
                     </div>
 
-                    <button
-                      onClick={() => setActiveProduct(product)}
-                      className="absolute bottom-3 right-3 p-2 rounded-xl bg-white/90 hover:bg-white text-zinc-900 shadow-md transition"
-                      title="Inspect Specs & Verified Reviews"
-                    >
-                      <Eye className="w-4 h-4" />
-                    </button>
+                    <div className="absolute bottom-3 right-3 flex items-center gap-1.5">
+                      <Link
+                        href={`/products/${product.id}`}
+                        className="p-2 rounded-xl bg-white/90 hover:bg-white text-zinc-900 shadow-md transition"
+                        title="Dedicated Product Page"
+                      >
+                        <ArrowUpRight className="w-4 h-4" />
+                      </Link>
+                      <button
+                        onClick={() => setActiveProduct(product)}
+                        className="p-2 rounded-xl bg-white/90 hover:bg-white text-zinc-900 shadow-md transition cursor-pointer"
+                        title="Inspect Specs & Quick Reviews"
+                      >
+                        <Eye className="w-4 h-4" />
+                      </button>
+                    </div>
                   </div>
 
                   <div className="p-5">
@@ -220,12 +240,12 @@ export default function StorefrontCatalogPage() {
                         </span>
                       )}
                     </div>
-                    <h3
-                      onClick={() => setActiveProduct(product)}
-                      className="font-bold text-zinc-900 text-base leading-snug cursor-pointer hover:text-indigo-600 transition"
+                    <Link
+                      href={`/products/${product.id}`}
+                      className="font-bold text-zinc-900 text-base leading-snug hover:text-indigo-600 transition block truncate"
                     >
                       {product.name}
-                    </h3>
+                    </Link>
                     <p className="text-xs text-zinc-500 mt-1.5 line-clamp-2 leading-relaxed">
                       {product.description}
                     </p>
@@ -237,7 +257,7 @@ export default function StorefrontCatalogPage() {
                     <span className="text-lg font-black font-mono text-zinc-900">
                       ${product.price.toFixed(2)}
                     </span>
-                    <span className="block text-[11px] text-zinc-500">
+                    <span className="block text-[11px] text-zinc-500 font-mono">
                       {product.stock} in stock
                     </span>
                   </div>
@@ -257,14 +277,16 @@ export default function StorefrontCatalogPage() {
         </div>
       )}
 
-      <ProductModal
-        product={activeProduct}
-        onClose={() => setActiveProduct(null)}
-        onReviewAdded={(updated) => {
-          setActiveProduct(updated);
-          setProducts((prev) => prev.map((p) => (p.id === updated.id ? updated : p)));
-        }}
-      />
+      {activeProduct && (
+        <ProductModal
+          product={activeProduct}
+          onClose={() => setActiveProduct(null)}
+          onReviewAdded={(updated) => {
+            setActiveProduct(updated);
+            setProducts((prev) => prev.map((p) => (p.id === updated.id ? updated : p)));
+          }}
+        />
+      )}
     </div>
   );
 }

@@ -1,8 +1,13 @@
 import type { Metadata } from "next";
+import dynamic from "next/dynamic";
 import "./globals.css";
 import { StoreProvider } from "@/context/StoreContext";
 import Navbar from "@/components/Navbar";
-import CartDrawer from "@/components/CartDrawer";
+
+// Modern Next.js Lazy-Loading for client drawer component
+const CartDrawer = dynamic(() => import("@/components/CartDrawer"), {
+  ssr: false,
+});
 
 export const metadata: Metadata = {
   title: "KRONO — Precision Workspace & Audio Hardware",

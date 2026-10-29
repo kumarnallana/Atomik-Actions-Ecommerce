@@ -34,9 +34,17 @@ interface StoreContextValue {
 
 const StoreContext = createContext<StoreContextValue | undefined>(undefined);
 
+const DEFAULT_USER: User = {
+  id: 1,
+  name: "Alex Rivera",
+  email: "alex.rivera@krono.io",
+  role: "customer",
+  created_at: new Date().toISOString(),
+};
+
 export function StoreProvider({ children }: { children: React.ReactNode }) {
-  const [users, setUsers] = useState<User[]>([]);
-  const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [users, setUsers] = useState<User[]>([DEFAULT_USER]);
+  const [currentUser, setCurrentUser] = useState<User | null>(DEFAULT_USER);
   const [cart, setCart] = useState<CartItem[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [toasts, setToasts] = useState<ToastMessage[]>([]);
